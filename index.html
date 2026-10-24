@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#050105" id="meta-theme-color">
+
+    <title>Time in Time</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #ff1493;
+            --secondary-color: #ff69b4;
+            --glow-color: rgba(255, 20, 147, 0.5);
+            --bg-color: #050105;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            background-color: var(--bg-color);
+            color: var(--secondary-color);
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .neon-font {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .neon-glow-primary {
+            color: #ffffff;
+            text-shadow: 
+                0 0 5px #ffffff,
+                0 0 10px var(--primary-color),
+                0 0 20px var(--primary-color),
+                0 0 35px var(--primary-color),
+                0 0 50px var(--secondary-color);
+        }
+
+        .neon-glow-box {
+            box-shadow: 0 0 30px var(--glow-color), inset 0 0 25px rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--secondary-color);
+        }
+
+        .dial-card {
+            background: rgba(0, 0, 0, 0.85);
+            border: 1.5px solid var(--primary-color);
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.9), 0 0 12px var(--glow-color);
+        }
+
+        .dial-label {
+            color: var(--secondary-color);
+            text-shadow: 0 0 8px var(--glow-color);
+        }
+
+        .photo-frame {
+            box-shadow: 0 0 20px var(--glow-color);
+            border: 3px solid var(--secondary-color);
+        }
+
+        /* TELEFONLARDA KUSURSUZ GÖRÜNEN VE HARİKA ATAN KALP ANİMASYONU */
+        .hearts-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 10px 0;
+            animation: heartbeat 1.2s infinite ease-in-out;
+        }
+
+        .custom-black-heart {
+            width: 38px;
+            height: 38px;
+            fill: #0d0d0d;
+            stroke: #ffffff;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.18); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.18); }
+            70% { transform: scale(1); }
+            100% { transform: scale(1); }
+        }
+
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        #floating-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 2;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(105vh) scale(0.6) rotate(0deg); opacity: 0; }
+            20% { opacity: 0.9; }
+            80% { opacity: 0.9; }
+            100% { transform: translateY(-10vh) scale(1.3) rotate(360deg); opacity: 0; }
+        }
+
+        .floating-item {
+            position: absolute;
+            bottom: -60px;
+            animation: floatUp linear infinite;
+        }
+
+        .content-layer {
+            position: relative;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between p-4 md:p-8 select-none">
+
+    <canvas id="matrix-canvas"></canvas>
+    <div id="floating-container"></div>
+
+    <header class="w-full text-center mt-6 md:mt-12 content-layer">
+        <h1 id="names-heading" class="text-3xl sm:text-4xl md:text-7xl font-black tracking-wider neon-font neon-glow-primary mt-4 mb-2"></h1>
+    </header>
+
+    <main class="w-full max-w-3xl bg-black/85 backdrop-blur-xl rounded-3xl p-5 md:p-10 neon-glow-box content-layer my-6 text-center relative overflow-hidden">
+        
+        <div id="glow-corner-1" class="absolute -top-12 -left-12 w-32 h-32 rounded-full blur-2xl pointer-events-none opacity-40"></div>
+        <div id="glow-corner-2" class="absolute -bottom-12 -right-12 w-32 h-32 rounded-full blur-2xl pointer-events-none opacity-40"></div>
+
+        <div class="flex justify-center mb-6">
+            <div class="relative w-36 h-36 sm:w-48 sm:h-48 rounded-2xl overflow-hidden photo-frame bg-black/40 flex items-center justify-center">
+                <img src="ciftler6.jpeg" alt="T" class="w-full h-full object-cover" onerror="this.style.display='none'; document.getElementById('fallback-icon').style.display='block';">
+                <i id="fallback-icon" class="fa-solid fa-heart text-4xl text-white/50" style="display:none;"></i>
+            </div>
+        </div>
+
+        <div class="mb-5 md:mb-7">
+            <!-- VEKTÖR SIYAH KALPLER (TELEFONLARDA %100 CAM GİBİ NET GÖRÜNÜR) -->
+            <div class="hearts-container">
+                <svg class="custom-black-heart" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+                <svg class="custom-black-heart" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+            </div>
+            
+            <h2 id="box-title" class="text-lg md:text-2xl font-bold mt-2 neon-font text-white tracking-wide"></h2>
+            <p id="start-date-text" class="text-xs opacity-80 mt-1 dial-label"></p>
+        </div>
+
+        <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3 my-4 md:my-6 w-full">
+            <div class="dial-card rounded-2xl p-2 sm:p-3.5 flex flex-col justify-center items-center">
+                <span id="years" class="text-2xl sm:text-3xl md:text-4xl font-black neon-font neon-glow-primary block leading-none">00</span>
+                <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider dial-label mt-2 block">Yıl</span>
+            </div>
+            <div class="dial-card rounded-2xl p-2 sm:p-3.5 flex flex-col justify-center items-center">
+                <span id="months" class="text-2xl sm:text-3xl md:text-4xl font-black neon-font neon-glow-primary block leading-none">00</span>
+                <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider dial-label mt-2 block">Ay</span>
+            </div>
+            <div class="dial-card rounded-2xl p-2 sm:p-3.5 flex flex-col justify-center items-center">
+                <span id="weeks" class="text-2xl sm:text-3xl md:text-4xl font-black neon-font neon-glow-primary block leading-none">00</span>
+                <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider dial-label mt-2 block">Hafta</span>
+            </div>
+            <div class="dial-card rounded-2xl p-2 sm:p-3.5 flex flex-col justify-center items-center">
+                <span id="days" class="text-2xl sm:text-3xl md:text-4xl font-black neon-font neon-glow-primary block leading-none">00</span>
+                <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider dial-label mt-2 block">Gün</span>
+            </div>
+            <div class="dial-card rounded-2xl p-2 sm:p-3.5 flex flex-col justify-center items-center">
+                <span id="hours" class="text-2xl sm:text-3xl md:text-4xl font-black neon-font neon-glow-primary block leading-none">00</span>
+                <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider dial-label mt-2 block">Saat</span>
+            </div>
+            <div class="dial-card rounded-2xl p-2 sm:p-3.5 flex flex-col justify-center items-center">
+                <span id="seconds" class="text-2xl sm:text-3xl md:text-4xl font-black neon-font neon-glow-primary block leading-none">00</span>
+                <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider dial-label mt-2 block">Saniye</span>
+            </div>
+        </div>
+
+        <div class="mt-6 pt-4 sm:pt-6 border-t border-white/20">
+            <p id="quote-text" class="text-white/90 text-xs sm:text-base md:text-lg italic font-light leading-relaxed px-2 sm:px-4"></p>
+        </div>
+    </main>
+
+    <footer class="w-full text-center pb-2 sm:pb-4 content-layer">
+        <p id="footer-text" class="text-[10px] sm:text-xs tracking-widest uppercase opacity-70"></p>
+    </footer>
+
+    <script>
+        const CONFIG = {
+            firstName: "Tyler",
+            secondName: "Marla",
+            theme: "green", // "pink", "yellow", "green", "white"
+            startDateISO: "2010-03-06T00:00:00",
+            startDateLabel: "Başlangıç: 06 Mart 2000",
+            boxTitle: "Bizim Zamanımız",
+            quoteText: "Zaman geçiyor,yıllar değişiyor ama seninle geçen her saniye benim için hala ilk günkü kadar değerli...",
+            footerText: "TIMEINTIME"
+        };
+
+        const THEMES = {
+            pink: { primary: "#ff1493", secondary: "#ff69b4", glow: "rgba(255, 20, 147, 0.5)", bg: "#050105", matrixBg: "rgba(5, 1, 5, 0.15)" },
+            yellow: { primary: "#ffd700", secondary: "#ffea00", glow: "rgba(255, 215, 0, 0.5)", bg: "#050500", matrixBg: "rgba(5, 5, 0, 0.15)" },
+            green: { primary: "#00ff66", secondary: "#55ff99", glow: "rgba(0, 255, 102, 0.5)", bg: "#000502", matrixBg: "rgba(0, 5, 2, 0.15)" },
+            white: { primary: "#e0f7fa", secondary: "#ffffff", glow: "rgba(255, 255, 255, 0.4)", bg: "#030508", matrixBg: "rgba(3, 5, 8, 0.15)" }
+        };
+
+        const currentTheme = THEMES[CONFIG.theme] || THEMES.pink;
+        document.documentElement.style.setProperty('--primary-color', currentTheme.primary);
+        document.documentElement.style.setProperty('--secondary-color', currentTheme.secondary);
+        document.documentElement.style.setProperty('--glow-color', currentTheme.glow);
+        document.documentElement.style.setProperty('--bg-color', currentTheme.bg);
+        
+        document.getElementById('names-heading').innerHTML = `${CONFIG.firstName} <span class="text-white text-2xl sm:text-3xl md:text-6xl">&</span> ${CONFIG.secondName}`;
+        document.getElementById('box-title').innerText = CONFIG.boxTitle;
+        document.getElementById('start-date-text').innerText = CONFIG.startDateLabel;
+        document.getElementById('quote-text').innerText = `"${CONFIG.quoteText}"`;
+        document.getElementById('footer-text').innerText = CONFIG.footerText;
+        document.getElementById('glow-corner-1').style.backgroundColor = currentTheme.primary;
+        document.getElementById('glow-corner-2').style.backgroundColor = currentTheme.primary;
+
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas_fn() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas_fn);
+        resizeCanvas_fn();
+
+        const characters = "0123456789SILAAHMETTIMEINHEART<3";
+        const fontSize = 16;
+        let columns = Math.floor(canvas.width / fontSize);
+        let drops = [];
+
+        for (let i = 0; i < columns; i++) {
+            drops[i] = Math.floor(Math.random() * -100);
+        }
+
+        function drawMatrix() {
+            ctx.fillStyle = currentTheme.matrixBg;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = characters.charAt(Math.floor(Math.random() * characters.length));
+                ctx.fillStyle = Math.random() > 0.85 ? '#ffffff' : currentTheme.primary;
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 50);
+
+        const container = document.getElementById('floating-container');
+        const icons = ['fa-solid fa-heart', 'fa-solid fa-butterfly', 'fa-solid fa-feather', 'fa-solid fa-sparkles', 'fa-solid fa-ring'];
+
+        function createFloatingElement() {
+            const el = document.createElement('div');
+            el.className = 'floating-item';
+            const iconClass = icons[Math.floor(Math.random() * icons.length)];
+            const size = Math.floor(Math.random() * 18 + 14);
+            el.innerHTML = `<i class="${iconClass}" style="color: ${currentTheme.secondary}; font-size: ${size}px; filter: drop-shadow(0 0 10px ${currentTheme.primary});"></i>`;
+            el.style.left = Math.random() * 100 + 'vw';
+            const duration = Math.random() * 6 + 7;
+            el.style.animationDuration = duration + 's';
+            container.appendChild(el);
+
+            setTimeout(() => { el.remove(); }, duration * 1000);
+        }
+        setInterval(createFloatingElement, 400);
+
+        function updateTimer() {
+            const startDateObj = new Date(CONFIG.startDateISO);
+            const nowObj = new Date();
+
+            if (nowObj >= startDateObj) {
+                let years = nowObj.getFullYear() - startDateObj.getFullYear();
+                let months = nowObj.getMonth() - startDateObj.getMonth();
+                let days = nowObj.getDate() - startDateObj.getDate();
+                let hours = nowObj.getHours() - startDateObj.getHours();
+                let seconds = nowObj.getSeconds() - startDateObj.getSeconds();
+
+                if (seconds < 0) { seconds += 60; hours--; }
+                if (hours < 0) { hours += 24; days--; }
+                if (days < 0) {
+                    const prevMonth = new Date(nowObj.getFullYear(), nowObj.getMonth(), 0);
+                    days += prevMonth.getDate();
+                    months--;
+                }
+                if (months < 0) { months += 12; years--; }
+
+                const weeks = Math.floor(days / 7);
+                const remainingDays = days % 7;
+
+                document.getElementById('years').innerText = String(years).padStart(2, '0');
+                document.getElementById('months').innerText = String(months).padStart(2, '0');
+                document.getElementById('weeks').innerText = String(weeks).padStart(2, '0');
+                document.getElementById('days').innerText = String(remainingDays).padStart(2, '0');
+                document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+                document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+            } else {
+                document.getElementById('years').innerText = '00';
+                document.getElementById('months').innerText = '00';
+                document.getElementById('weeks').innerText = '00';
+                document.getElementById('days').innerText = '00';
+                document.getElementById('hours').innerText = '00';
+                document.getElementById('seconds').innerText = '00';
+            }
+        }
+        setInterval(updateTimer, 1000);
+        updateTimer();
+    </script>
+</body>
+</html>
